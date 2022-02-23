@@ -3,11 +3,10 @@ import urequests as requests
 from machine import Pin
 from dht import DHT11
 from time import sleep
+import ujson as json
 
-
-aio_key = "aio_cdoJ53R2nDzRkEvcNcpVDzGuUV3D"
-username = "Dert14"
-feed_name = "button"
+with open("/wifi_settings_test.json") as credentials_json:   # This pattern allows you to open and read an existing file.
+    settings = json.loads(credentials_json.read())
 
 def do_connect():
     wlan.active(True)             # Activate the interface so you can use it.
@@ -27,12 +26,13 @@ dht11 = DHT11(Pin(4))
 while True:
     dht11.measure()
     temperature = dht11.temperature()
-    url = 'https://io.adafruit.com/api/v2/' + username + '/feeds/' + feed_name + '/data'
+    url = 'https://io.adafruit.com/api/v2/' + settings["username"] + '/feeds/' + settings["feed_name"] + '/data'
     body = {'value': str(temperature)}
-    headers = {'X-AIO-Key': aio_key, 'Content-Type': 'application/json'}
+    headers = {'X-AIO-Key': settings["aio_key"], 'Content-Type': 'application/json'}
     try:
         r = requests.post(url, json=body, headers=headers)
         print(r.text)
     except Exception as e:
         print(e)
-    sleep(2)    
+    sleep(2)
+
